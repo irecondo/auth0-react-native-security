@@ -1,17 +1,18 @@
-# Auth0 React Native Sample - iOS Login
+# Auth0 React Native Sample - iOS & Android
 
-This is a React Native application demonstrating Auth0 integration with iOS, featuring:
+This is a React Native application demonstrating Auth0 integration for both iOS and Android, featuring:
 
 - **Web-based Auth0 login** with Universal Login
 - **Ephemeral session** to avoid iOS consent popup
 - **User profile screen** displaying all claims from the ID token
-- **iOS device support** with proper code signing
+- **iOS and Android device support** with proper configuration
 
 ## Prerequisites
 
 - Node.js >= 18
 - React Native development environment set up
 - Xcode (for iOS development)
+- Android Studio (for Android development)
 - CocoaPods
 - An Auth0 account
 
@@ -88,7 +89,7 @@ npx react-native run-android
 ## Features
 
 ### Ephemeral Session
-The app uses `ephemeralSession: true` to prevent the iOS consent popup ("App wants to use auth0.com to sign in"). This provides a smoother user experience.
+The app uses `ephemeralSession: true` to prevent the iOS consent popup ("App wants to use auth0.com to sign in"). This provides a smoother user experience on iOS. On Android, the authentication flow works seamlessly without additional consent prompts.
 
 ### Profile Screen
 After login, the app displays a profile screen showing all user claims from the ID token, including:
