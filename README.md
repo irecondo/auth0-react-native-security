@@ -57,17 +57,17 @@ This is a React Native application demonstrating Auth0 integration for both iOS 
    
    **Allowed Callback URLs:**
    ```
-   com.auth0samples.auth0://YOUR_DOMAIN/ios/com.auth0samples/callback,
-   com.auth0samples.auth0://YOUR_DOMAIN/android/com.auth0samples/callback
+   com.auth0samples.auth0://financeapp.cic-demo-platform.auth0app.com/ios/com.auth0samples/callback,
+   com.auth0samples.auth0://financeapp.cic-demo-platform.auth0app.com/android/com.auth0samples/callback
    ```
    
    **Allowed Logout URLs:**
    ```
-   com.auth0samples.auth0://YOUR_DOMAIN/ios/com.auth0samples/callback,
-   com.auth0samples.auth0://YOUR_DOMAIN/android/com.auth0samples/callback
+   com.auth0samples.auth0://financeapp.cic-demo-platform.auth0app.com/ios/com.auth0samples/callback,
+   com.auth0samples.auth0://financeapp.cic-demo-platform.auth0app.com/android/com.auth0samples/callback
    ```
    
-   Replace `YOUR_DOMAIN` with your actual Auth0 domain.
+   *Note: If you use a different Auth0 domain or bundle identifier, update the URLs accordingly.*
 
 ## Running the App
 
