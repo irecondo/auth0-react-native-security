@@ -1,4 +1,4 @@
-# Auth0 React Native Sample - iOS & Android
+# Auth0 React Native Security Sample
 
 This is a React Native application demonstrating Auth0 integration for both iOS and Android, featuring:
 
