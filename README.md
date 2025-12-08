@@ -3,6 +3,7 @@
 This is a React Native application demonstrating Auth0 integration for both iOS and Android, featuring:
 
 - **Web-based Auth0 login** with Universal Login
+- **Email OTP Passwordless login** - Native passwordless authentication with email verification codes
 - **Ephemeral session** to avoid iOS consent popup
 - **User profile screen** displaying all claims from the ID token
 - **iOS and Android device support** with proper configuration
@@ -90,6 +91,32 @@ npx react-native run-android
 
 ### Ephemeral Session
 The app uses `ephemeralSession: true` to prevent the iOS consent popup ("App wants to use auth0.com to sign in"). This provides a smoother user experience on iOS. On Android, the authentication flow works seamlessly without additional consent prompts.
+
+### Email OTP Passwordless Login
+The app includes a native Email OTP passwordless login flow that allows users to authenticate without a password:
+
+1. **User enters their email address** - The app collects the user's email
+2. **OTP is sent** - Auth0 sends a 6-digit verification code to the email address via the `/passwordless/start` endpoint
+3. **User enters OTP** - The user checks their email and enters the code
+4. **Token exchange** - The app exchanges the OTP for tokens via the `/oauth/token` endpoint with `grant_type: http://auth0.com/oauth/grant-type/passwordless/otp`
+
+#### Auth0 Dashboard Configuration for Email OTP
+
+To enable Email OTP passwordless login, configure the following in your Auth0 Dashboard:
+
+1. **Enable Passwordless Email Connection:**
+   - Go to **Authentication** > **Passwordless**
+   - Enable the **Email** toggle
+   - Configure email settings (subject, message template, OTP expiry, etc.)
+
+2. **Enable Passwordless OTP Grant Type:**
+   - Go to **Applications** > **Your Application** > **Settings**
+   - Scroll to **Advanced Settings** > **Grant Types**
+   - Enable **Passwordless OTP**
+
+3. **Enable the Email Passwordless Connection for your Application:**
+   - Go to **Applications** > **Your Application** > **Connections**
+   - Under **Passwordless**, enable **email**
 
 ### Profile Screen
 After login, the app displays a profile screen showing all user claims from the ID token, including:
