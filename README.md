@@ -2,11 +2,13 @@
 
 This is a React Native application demonstrating Auth0 integration for both iOS and Android, featuring:
 
-- **Web-based Auth0 login** with Universal Login
-- **Email OTP Passwordless login** - Native passwordless authentication with email verification codes
+- **Universal Login** with Email OTP (passwordless) for sign-up and login
+- **Native Email OTP** flow for in-app passwordless sign-up/login
+- **In-app onboarding**: first-time sign-up can enable Face ID/Touch ID and set a 6-digit PIN
+- **Security self-service**: manage biometrics and PIN inside the app after login
 - **Ephemeral session** to avoid iOS consent popup
-- **User profile screen** displaying all claims from the ID token
-- **iOS and Android device support** with proper configuration
+- **User profile** screen showing ID token claims
+- **iOS and Android** device support with proper configuration
 
 ## Prerequisites
 
@@ -93,12 +95,17 @@ npx react-native run-android
 The app uses `ephemeralSession: true` to prevent the iOS consent popup ("App wants to use auth0.com to sign in"). This provides a smoother user experience on iOS. On Android, the authentication flow works seamlessly without additional consent prompts.
 
 ### Email OTP Passwordless Login
-The app includes a native Email OTP passwordless login flow that allows users to authenticate without a password:
+You can sign up or log in with Email OTP either via Universal Login or the native in-app flow:
 
 1. **User enters their email address** - The app collects the user's email
 2. **OTP is sent** - Auth0 sends a 6-digit verification code to the email address via the `/passwordless/start` endpoint
 3. **User enters OTP** - The user checks their email and enters the code
 4. **Token exchange** - The app exchanges the OTP for tokens via the `/oauth/token` endpoint with `grant_type: http://auth0.com/oauth/grant-type/passwordless/otp`
+
+### Biometrics + PIN onboarding
+- First-time sign-up: optional onboarding to enable Face ID/Touch ID (if available) and create a 6-digit PIN for app unlock.
+- Returning users: if PIN/biometrics are set, the app shows a lock screen and can prompt biometrics first.
+- Security screen: toggle biometrics and update the PIN after logging in.
 
 #### Auth0 Dashboard Configuration for Email OTP
 
