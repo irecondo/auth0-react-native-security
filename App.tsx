@@ -20,7 +20,7 @@ import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics';
 import DeviceInfo from 'react-native-device-info';
 
 // Imports from new structure
-import { AUTH0_MYACCOUNT_AUDIENCE } from '@env';
+import { AUTH0_MYACCOUNT_AUDIENCE, AUTH0_PASSKEY_REALM } from '@env';
 
 
 import { deleteUserPasskey } from './src/services/ManagementAPI';
@@ -286,6 +286,7 @@ const App = () => {
             await auth0.auth.passwordlessWithEmail({
                 email: email.trim(),
                 send: 'code',
+                realm: AUTH0_PASSKEY_REALM
             });
             setPasswordlessStep('otp');
             Alert.alert('Success', 'A verification code has been sent to your email');
@@ -313,7 +314,8 @@ const App = () => {
             const credentials = await auth0.auth.loginWithEmail({
                 email: email.trim(),
                 code: otp.trim(),
-                scope: 'openid profile email'
+                scope: 'openid profile email',
+                realm: AUTH0_PASSKEY_REALM
             });
 
             setAccessToken(credentials.accessToken);

@@ -3,7 +3,8 @@ import {
     TENANT_AUTH0_DOMAIN,
     MGMT_CLIENT_ID,
     MGMT_CLIENT_SECRET,
-    AUTH0_EMAIL_REALM
+    AUTH0_EMAIL_REALM,
+    AUTH0_PASSKEY_REALM
 } from '@env';
 
 // Simple in-memory cache for the token
@@ -50,7 +51,7 @@ export const getManagementToken = async (): Promise<string | null> => {
 
 export const getWebUserByEmail = async (
     email: string,
-    realm: string = AUTH0_EMAIL_REALM || 'email'
+    realm: string = AUTH0_PASSKEY_REALM || AUTH0_EMAIL_REALM || 'email'
 ): Promise<any | null> => {
     const token = await getManagementToken();
     if (!token) return null;
