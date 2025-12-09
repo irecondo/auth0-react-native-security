@@ -153,11 +153,8 @@ const App = () => {
                 authorizeParams.audience = myAccountAudience;
             }
 
-            // Only force email connection for login (not signup)
-            if (!screenHint) {
-                authorizeParams.connection = 'email';
-            } else {
-                // Pass screen_hint inside additionalParameters in the first argument
+            // Pass screen_hint inside additionalParameters in the first argument (signup)
+            if (screenHint) {
                 authorizeParams.additionalParameters = { screen_hint: screenHint };
             }
 
