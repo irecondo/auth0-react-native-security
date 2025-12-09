@@ -20,7 +20,7 @@ import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics';
 import DeviceInfo from 'react-native-device-info';
 
 // Imports from new structure
-import { AUTH0_MYACCOUNT_AUDIENCE, AUTH0_PASSKEY_REALM } from '@env';
+import { AUTH0_MYACCOUNT_AUDIENCE, AUTH0_EMAIL_REALM } from '@env';
 
 
 import { deleteUserPasskey } from './src/services/ManagementAPI';
@@ -50,6 +50,7 @@ const auth0 = new Auth0(config);
 const App = () => {
     const useEphemeralSession = true;
     const myAccountAudience = AUTH0_MYACCOUNT_AUDIENCE?.trim();
+    const passwordlessEmailRealm = AUTH0_EMAIL_REALM?.trim() || 'email';
 
     // Core auth state
     const [appState, setAppState] = useState<AppState>('initializing');
@@ -148,6 +149,8 @@ const App = () => {
             // Build authorize params
             const authorizeParams: any = {
                 scope: 'openid profile email offline_access myaccount:read read:current_user update:current_user_identities',
+                connection: passwordlessEmailRealm,
+                realm: passwordlessEmailRealm,
             };
             if (myAccountAudience) {
                 authorizeParams.audience = myAccountAudience;
@@ -281,13 +284,14 @@ const App = () => {
             return;
         }
 
+        console.log('[OTP] Using connection/realm:', passwordlessEmailRealm);
         setIsLoading(true);
         try {
             await auth0.auth.passwordlessWithEmail({
                 email: email.trim(),
                 send: 'code',
-                connection: AUTH0_PASSKEY_REALM,
-                realm: AUTH0_PASSKEY_REALM
+                connection: passwordlessEmailRealm,
+                realm: passwordlessEmailRealm
             });
             setPasswordlessStep('otp');
             Alert.alert('Success', 'A verification code has been sent to your email');
@@ -316,8 +320,8 @@ const App = () => {
                 email: email.trim(),
                 code: otp.trim(),
                 scope: 'openid profile email',
-                connection: AUTH0_PASSKEY_REALM,
-                realm: AUTH0_PASSKEY_REALM
+                connection: passwordlessEmailRealm,
+                realm: passwordlessEmailRealm
             });
 
             setAccessToken(credentials.accessToken);

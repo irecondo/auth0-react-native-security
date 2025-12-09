@@ -31,16 +31,9 @@ This is a React Native application demonstrating Auth0 integration for both iOS 
    cd ios && pod install && cd ..
    ```
 
-3. **Configure Auth0:**
-   - Copy `auth0-configuration.js.example` to `auth0-configuration.js`
-   - Update with your Auth0 credentials:
-     ```javascript
-     const config = {
-       clientId: "YOUR_CLIENT_ID",
-       domain: "YOUR_DOMAIN"
-     };
-     export default config;
-     ```
+3. **Configure Auth0 (.env is recommended):**
+   - Copy `.env.example` to `.env` and fill in your tenant values (`AUTH0_CLIENT_ID`, `AUTH0_DOMAIN`, management client creds, `AUTH0_EMAIL_REALM` etc.).
+   - Copy `auth0-configuration.js.example` to `auth0-configuration.js` and set `clientId`/`domain` to match your Auth0 application (these should align with the values in `.env`).
 
 4. **Configure Android:**
    - Open `android/app/build.gradle`
