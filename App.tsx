@@ -286,6 +286,7 @@ const App = () => {
             await auth0.auth.passwordlessWithEmail({
                 email: email.trim(),
                 send: 'code',
+                connection: AUTH0_PASSKEY_REALM,
                 realm: AUTH0_PASSKEY_REALM
             });
             setPasswordlessStep('otp');
@@ -315,6 +316,7 @@ const App = () => {
                 email: email.trim(),
                 code: otp.trim(),
                 scope: 'openid profile email',
+                connection: AUTH0_PASSKEY_REALM,
                 realm: AUTH0_PASSKEY_REALM
             });
 
