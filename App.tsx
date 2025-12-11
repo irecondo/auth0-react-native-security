@@ -428,23 +428,31 @@ const App = () => {
         } else {
             // Enable biometrics
             if (!biometricsAvailable) {
-                Alert.alert('Not Available', `${getBiometricsLabel()} is not available on this device.`);
-                return;
-            }
-            try {
-                const rnBiometrics = new ReactNativeBiometrics();
-                const { success } = await rnBiometrics.simplePrompt({
-                    promptMessage: 'Confirm your identity to enable ' + getBiometricsLabel(),
-                });
-                if (success) {
-                    await setSecureValue(STORAGE_KEYS.BIOMETRICS_ENABLED, 'true');
-                    setBiometricsEnabled(true);
-                    Alert.alert('Success', `${getBiometricsLabel()} has been enabled!`);
+                    Alert.alert('Not Available', `${getBiometricsLabel()} is not available on this device.`);
+                    return;
                 }
-            } catch (error) {
-                console.log('Biometrics error:', error);
-                Alert.alert('Error', 'Failed to enable biometrics. Please try again.');
-            }
+                try {
+                    const rnBiometrics = new ReactNativeBiometrics();
+                    const { success } = await rnBiometrics.simplePrompt({
+                        promptMessage: 'Confirm your identity to enable ' + getBiometricsLabel(),
+                    });
+                    if (success) {
+                        await setSecureValue(STORAGE_KEYS.BIOMETRICS_ENABLED, 'true');
+                        setBiometricsEnabled(true);
+                        Alert.alert('Success', `${getBiometricsLabel()} has been enabled!`);
+
+                        // If user skipped onboarding and has no PIN, route them to set one now
+                        if (!storedPin) {
+                            setPinInput('');
+                            setConfirmPinInput('');
+                            setIsPinConfirmStep(false);
+                            setAppState('onboarding_pin');
+                        }
+                    }
+                } catch (error) {
+                    console.log('Biometrics error:', error);
+                    Alert.alert('Error', 'Failed to enable biometrics. Please try again.');
+                }
         }
     };
 
