@@ -82,6 +82,7 @@ const App = () => {
     const appStateRef = useRef(RNAppState.currentState);
     const lastBackgroundedAtRef = useRef<number | null>(null);
     const autoLockTimeoutMs = autoLockTimeout * 60 * 1000;
+    const [hasPromptedSecurity, setHasPromptedSecurity] = useState<boolean>(false);
 
     // Initialize app - check for stored credentials
     useEffect(() => {
@@ -596,6 +597,39 @@ const App = () => {
             subscription.remove();
         };
     }, [autoLockEnabled, autoLockTimeoutMs, appState, biometricsAvailable, biometricsEnabled, storedPin]);
+
+    // Prompt users who skipped onboarding to enable biometrics/PIN after login
+    useEffect(() => {
+        const needsPin = !storedPin;
+        const needsBiometrics = biometricsAvailable && !biometricsEnabled;
+        const shouldPrompt = appState === 'home' && !hasPromptedSecurity && (needsPin || needsBiometrics);
+
+        if (shouldPrompt) {
+            const messageParts = [];
+            if (needsBiometrics && needsPin) {
+                messageParts.push('Enable Face ID/Touch ID and set a PIN to protect the app.');
+            } else if (needsBiometrics) {
+                messageParts.push('Enable Face ID/Touch ID to protect the app.');
+            } else if (needsPin) {
+                messageParts.push('Set a PIN to protect the app.');
+            }
+
+            Alert.alert(
+                'Secure your app',
+                messageParts.join(' '),
+                [
+                    { text: 'Later', style: 'cancel', onPress: () => setHasPromptedSecurity(true) },
+                    {
+                        text: 'Set up now',
+                        onPress: () => {
+                            setHasPromptedSecurity(true);
+                            setAppState('security');
+                        }
+                    }
+                ]
+            );
+        }
+    }, [appState, biometricsAvailable, biometricsEnabled, storedPin, hasPromptedSecurity]);
 
     const onLockPinDigitPress = (digit: string) => {
         if (lockPinInput.length < 6) {
