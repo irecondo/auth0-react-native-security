@@ -36,6 +36,12 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
     const timeOptions = [1, 5, 10];
     const autoLockAvailable = !!storedPin;
     const autoLockOptionsVisible = autoLockAvailable && (autoLockEnabled || showAutoLockOptions);
+    const handleAutoLockToggle = () => {
+        if (!autoLockAvailable) return;
+        const nextEnabled = !autoLockEnabled;
+        onToggleAutoLock();
+        setShowAutoLockOptions(nextEnabled);
+    };
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -108,10 +114,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                     {/* Auto-lock toggle */}
                     <TouchableOpacity
                         style={[styles.securityOption, { borderRadius: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, marginBottom: 0 }]}
-                        onPress={() => {
-                            if (!autoLockAvailable) return;
-                            setShowAutoLockOptions(prev => !prev);
-                        }}
+                        onPress={handleAutoLockToggle}
                         disabled={!autoLockAvailable}
                     >
                         <View style={styles.securityOptionInfo}>
@@ -130,11 +133,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                                     autoLockEnabled && styles.checkboxChecked,
                                     !autoLockAvailable && { opacity: 0.3 }
                                 ]}
-                                onPress={() => {
-                                    if (!autoLockAvailable) return;
-                                    onToggleAutoLock();
-                                    setShowAutoLockOptions(true);
-                                }}
+                                onPress={handleAutoLockToggle}
                                 disabled={!autoLockAvailable}
                                 activeOpacity={0.7}
                             >
