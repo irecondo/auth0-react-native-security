@@ -35,6 +35,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
 
     const timeOptions = [1, 5, 10];
     const autoLockAvailable = !!storedPin;
+    const autoLockOptionsVisible = autoLockAvailable && (autoLockEnabled || showAutoLockOptions);
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -140,7 +141,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
-                    {showAutoLockOptions && autoLockAvailable && (
+                    {autoLockOptionsVisible && (
                         <View style={styles.autoLockOptionsRow}>
                             {timeOptions.map(minutes => (
                                 <TouchableOpacity
