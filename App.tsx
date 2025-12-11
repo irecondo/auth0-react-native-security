@@ -82,7 +82,8 @@ const App = () => {
     const appStateRef = useRef(RNAppState.currentState);
     const lastBackgroundedAtRef = useRef<number | null>(null);
     const autoLockTimeoutMs = autoLockTimeout * 60 * 1000;
-    const [hasPromptedSecurity, setHasPromptedSecurity] = useState<boolean>(false);
+    const [hasPromptedBiometrics, setHasPromptedBiometrics] = useState<boolean>(false);
+    const [hasPromptedPin, setHasPromptedPin] = useState<boolean>(false);
 
     // Initialize app - check for stored credentials
     useEffect(() => {
@@ -598,38 +599,58 @@ const App = () => {
         };
     }, [autoLockEnabled, autoLockTimeoutMs, appState, biometricsAvailable, biometricsEnabled, storedPin]);
 
-    // Prompt users who skipped onboarding to enable biometrics/PIN after login
+    // Prompt users to enable biometrics first (if available and off)
     useEffect(() => {
-        const needsPin = !storedPin;
         const needsBiometrics = biometricsAvailable && !biometricsEnabled;
-        const shouldPrompt = appState === 'home' && !hasPromptedSecurity && (needsPin || needsBiometrics);
+        const shouldPromptBio = appState === 'home' && needsBiometrics && !hasPromptedBiometrics;
 
-        if (shouldPrompt) {
-            const messageParts = [];
-            if (needsBiometrics && needsPin) {
-                messageParts.push('Enable Face ID/Touch ID and set a PIN to protect the app.');
-            } else if (needsBiometrics) {
-                messageParts.push('Enable Face ID/Touch ID to protect the app.');
-            } else if (needsPin) {
-                messageParts.push('Set a PIN to protect the app.');
-            }
-
+        if (shouldPromptBio) {
             Alert.alert(
                 'Secure your app',
-                messageParts.join(' '),
+                'Enable Face ID/Touch ID to protect the app.',
                 [
-                    { text: 'Later', style: 'cancel', onPress: () => setHasPromptedSecurity(true) },
+                    { text: 'Later', style: 'cancel', onPress: () => setHasPromptedBiometrics(true) },
                     {
-                        text: 'Set up now',
+                        text: 'Enable now',
                         onPress: () => {
-                            setHasPromptedSecurity(true);
-                            setAppState('security');
+                            setHasPromptedBiometrics(true);
+                            // Only toggle on if currently disabled
+                            if (!biometricsEnabled) {
+                                toggleBiometrics();
+                            }
                         }
                     }
                 ]
             );
         }
-    }, [appState, biometricsAvailable, biometricsEnabled, storedPin, hasPromptedSecurity]);
+    }, [appState, biometricsAvailable, biometricsEnabled, hasPromptedBiometrics]);
+
+    // Prompt for PIN after biometrics prompt is handled (or not available)
+    useEffect(() => {
+        const needsPin = !storedPin;
+        const biometricsHandled = hasPromptedBiometrics || !biometricsAvailable || biometricsEnabled;
+        const shouldPromptPin = appState === 'home' && biometricsHandled && needsPin && !hasPromptedPin;
+
+        if (shouldPromptPin) {
+            Alert.alert(
+                'Secure your app',
+                'Set a PIN to protect the app.',
+                [
+                    { text: 'Later', style: 'cancel', onPress: () => setHasPromptedPin(true) },
+                    {
+                        text: 'Set up now',
+                        onPress: () => {
+                            setHasPromptedPin(true);
+                            setPinInput('');
+                            setConfirmPinInput('');
+                            setIsPinConfirmStep(false);
+                            setAppState('onboarding_pin');
+                        }
+                    }
+                ]
+            );
+        }
+    }, [appState, biometricsAvailable, biometricsEnabled, storedPin, hasPromptedBiometrics, hasPromptedPin]);
 
     const onLockPinDigitPress = (digit: string) => {
         if (lockPinInput.length < 6) {
