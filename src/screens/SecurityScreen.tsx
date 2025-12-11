@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '../styles/AppStyles';
 
 interface SecurityScreenProps {
@@ -37,10 +37,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
     const autoLockAvailable = !!storedPin;
     const autoLockOptionsVisible = autoLockAvailable && (autoLockEnabled || showAutoLockOptions);
     const handleAutoLockToggle = () => {
-        if (!autoLockAvailable) {
-            Alert.alert('PIN required', 'Set a PIN to enable auto-lock.');
-            return;
-        }
+        if (!autoLockAvailable) return;
         const nextEnabled = !autoLockEnabled;
         onToggleAutoLock();
         setShowAutoLockOptions(nextEnabled);
@@ -118,6 +115,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                     <TouchableOpacity
                         style={[styles.securityOption, { borderRadius: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, marginBottom: 0 }]}
                         onPress={handleAutoLockToggle}
+                        disabled={!autoLockAvailable}
                     >
                         <View style={styles.securityOptionInfo}>
                             <Text style={styles.securityOptionIcon}>⏱️</Text>
@@ -136,6 +134,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                                     !autoLockAvailable && { opacity: 0.3 }
                                 ]}
                                 onPress={handleAutoLockToggle}
+                                disabled={!autoLockAvailable}
                                 activeOpacity={0.7}
                             >
                                 {autoLockEnabled && <Text style={styles.checkmark}>✓</Text>}
