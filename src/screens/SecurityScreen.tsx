@@ -61,36 +61,34 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                     <TouchableOpacity
                         style={[styles.securityOption, { borderBottomWidth: 1, borderBottomColor: '#F0F0F0', borderRadius: 0, borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0 }]}
                         onPress={toggleBiometrics}
-                        disabled={!biometricsAvailable}
+                        activeOpacity={0.8}
                     >
                         <View style={styles.securityOptionInfo}>
                             <Text style={styles.securityOptionIcon}>
-                                {biometryType === 'FaceID' ? '👤' : '👆'}
+                                {'👤'}
                             </Text>
                             <View style={styles.securityOptionText}>
                                 <Text style={styles.securityOptionTitle}>
-                                    Sign in {biometryType === 'FaceID' ? 'Face ID' : 'Touch ID'}
+                                    Sign in Face ID
                                 </Text>
                                 <Text style={styles.securityOptionStatus}>
                                     {!biometricsAvailable
-                                        ? 'Not available'
+                                        ? 'Face ID not available'
                                         : biometricsEnabled
                                             ? 'Enabled'
                                             : 'Disabled'}
                                 </Text>
                             </View>
-                            {biometricsAvailable && (
-                                <TouchableOpacity
-                                    style={[
-                                        styles.checkbox,
-                                        biometricsEnabled && styles.checkboxChecked
-                                    ]}
-                                    onPress={toggleBiometrics}
-                                    activeOpacity={0.7}
-                                >
-                                    {biometricsEnabled && <Text style={styles.checkmark}>✓</Text>}
-                                </TouchableOpacity>
-                            )}
+                            <TouchableOpacity
+                                style={[
+                                    styles.checkbox,
+                                    biometricsEnabled && styles.checkboxChecked
+                                ]}
+                                onPress={toggleBiometrics}
+                                activeOpacity={0.7}
+                            >
+                                {biometricsEnabled && <Text style={styles.checkmark}>✓</Text>}
+                            </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
 
