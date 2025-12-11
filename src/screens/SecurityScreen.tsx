@@ -108,7 +108,10 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                     {/* Auto-lock toggle */}
                     <TouchableOpacity
                         style={[styles.securityOption, { borderRadius: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, marginBottom: 0 }]}
-                        onPress={() => setShowAutoLockOptions(prev => !prev)}
+                        onPress={() => {
+                            if (!autoLockAvailable) return;
+                            setShowAutoLockOptions(prev => !prev);
+                        }}
                         disabled={!autoLockAvailable}
                     >
                         <View style={styles.securityOptionInfo}>
@@ -130,9 +133,7 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                                 onPress={() => {
                                     if (!autoLockAvailable) return;
                                     onToggleAutoLock();
-                                    if (!autoLockEnabled) {
-                                        setShowAutoLockOptions(true);
-                                    }
+                                    setShowAutoLockOptions(true);
                                 }}
                                 disabled={!autoLockAvailable}
                                 activeOpacity={0.7}
