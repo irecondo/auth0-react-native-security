@@ -6,13 +6,14 @@
  * @flow strict-local
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     ActivityIndicator,
     Alert,
     View,
     Text,
-    Modal
+    Modal,
+    AppState as RNAppState
 } from 'react-native';
 import Auth0 from 'react-native-auth0';
 import { Passkey } from 'react-native-passkey';
@@ -76,6 +77,11 @@ const App = () => {
     const [deviceModel, setDeviceModel] = useState('Unknown Device');
     const [passkeys, setPasskeys] = useState<any[]>([]);
     const [isCreatingPasskey, setIsCreatingPasskey] = useState<boolean>(false);
+    const [autoLockEnabled, setAutoLockEnabled] = useState<boolean>(false);
+    const [autoLockTimeout, setAutoLockTimeout] = useState<number>(1); // minutes
+    const appStateRef = useRef(RNAppState.currentState);
+    const lastBackgroundedAtRef = useRef<number | null>(null);
+    const autoLockTimeoutMs = autoLockTimeout * 60 * 1000;
 
     // Initialize app - check for stored credentials
     useEffect(() => {
@@ -101,6 +107,12 @@ const App = () => {
                 const pin = await getSecureValue(STORAGE_KEYS.PIN);
                 const bioEnabled = await getSecureValue(STORAGE_KEYS.BIOMETRICS_ENABLED);
                 const storedOtpFlag = await getSecureValue(STORAGE_KEYS.IS_EMAIL_OTP_USER);
+                const storedAutoLockEnabled = await getSecureValue(STORAGE_KEYS.AUTO_LOCK_ENABLED);
+                const storedAutoLockTimeout = await getSecureValue(STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MINUTES);
+
+                setAutoLockEnabled(storedAutoLockEnabled === 'true');
+                const parsedTimeout = parseInt(storedAutoLockTimeout || '', 10);
+                setAutoLockTimeout(!isNaN(parsedTimeout) ? parsedTimeout : 1);
 
                 if (storedToken && storedUserInfo) {
                     setAccessToken(storedToken);
@@ -436,6 +448,21 @@ const App = () => {
         }
     };
 
+    const toggleAutoLock = async () => {
+        if (!storedPin) {
+            Alert.alert('PIN required', 'Set a PIN before turning on auto-lock.');
+            return;
+        }
+        const nextValue = !autoLockEnabled;
+        setAutoLockEnabled(nextValue);
+        await setSecureValue(STORAGE_KEYS.AUTO_LOCK_ENABLED, nextValue ? 'true' : 'false');
+    };
+
+    const updateAutoLockTimeout = async (minutes: number) => {
+        setAutoLockTimeout(minutes);
+        await setSecureValue(STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MINUTES, minutes.toString());
+    };
+
     // Open PIN change screen
     const openChangePinScreen = () => {
         setPinInput('');
@@ -526,6 +553,42 @@ const App = () => {
 
     const [lockPinInput, setLockPinInput] = useState<string>('');
 
+    const triggerAutoLock = () => {
+        if (!storedPin) return;
+        setLockPinInput('');
+        setAppState('lock_screen');
+        if (biometricsEnabled && biometricsAvailable) {
+            attemptBiometricAuth();
+        }
+    };
+
+    useEffect(() => {
+        const subscription = RNAppState.addEventListener('change', (nextState) => {
+            const prevState = appStateRef.current;
+            appStateRef.current = nextState;
+
+            if (prevState === 'active' && (nextState === 'inactive' || nextState === 'background')) {
+                lastBackgroundedAtRef.current = Date.now();
+            }
+
+            if ((prevState === 'inactive' || prevState === 'background') && nextState === 'active') {
+                const elapsed = lastBackgroundedAtRef.current ? Date.now() - lastBackgroundedAtRef.current : 0;
+                const lockableStates: AppState[] = ['home', 'profile', 'security', 'change_pin', 'devices', 'passkeys'];
+                const shouldLock = autoLockEnabled && storedPin && lockableStates.includes(appState);
+
+                if (shouldLock && elapsed >= autoLockTimeoutMs) {
+                    triggerAutoLock();
+                }
+
+                lastBackgroundedAtRef.current = null;
+            }
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, [autoLockEnabled, autoLockTimeoutMs, appState, biometricsAvailable, biometricsEnabled, storedPin]);
+
     const onLockPinDigitPress = (digit: string) => {
         if (lockPinInput.length < 6) {
             const newPin = lockPinInput + digit;
@@ -559,12 +622,16 @@ const App = () => {
         await clearSecureValue(STORAGE_KEYS.BIOMETRICS_ENABLED);
         await clearSecureValue(STORAGE_KEYS.ONBOARDING_COMPLETE);
         await clearSecureValue(STORAGE_KEYS.IS_EMAIL_OTP_USER);
+        await clearSecureValue(STORAGE_KEYS.AUTO_LOCK_ENABLED);
+        await clearSecureValue(STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MINUTES);
 
         setAccessToken(null);
         setUserInfo(null);
         setStoredPin(null);
         setBiometricsEnabled(false);
         setIsEmailOtpUser(false);
+        setAutoLockEnabled(false);
+        setAutoLockTimeout(1);
         setAppState('login');
     };
 
@@ -757,6 +824,10 @@ const App = () => {
                 storedPin={storedPin}
                 openChangePinScreen={openChangePinScreen}
                 onDevicesPress={() => setAppState('devices')}
+                autoLockEnabled={autoLockEnabled}
+                autoLockTimeout={autoLockTimeout}
+                onToggleAutoLock={toggleAutoLock}
+                onSelectAutoLockTimeout={updateAutoLockTimeout}
             />
         );
     }

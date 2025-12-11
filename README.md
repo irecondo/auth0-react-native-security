@@ -6,6 +6,7 @@ This is a React Native application demonstrating Auth0 integration for both iOS 
 - **Native Email OTP** flow for in-app passwordless sign-up/login
 - **In-app onboarding**: first-time sign-up can enable Face ID/Touch ID and set a 6-digit PIN
 - **Security self-service**: manage biometrics and PIN inside the app after login
+- **Auto-lock after inactivity**: optional timer (1/5/10 minutes) that re-locks the app to biometrics/PIN after being in the background; configurable in Security
 - **Ephemeral session** to avoid iOS consent popup
 - **User profile** screen showing ID token claims
 - **iOS and Android** device support with proper configuration

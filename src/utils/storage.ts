@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
     BIOMETRICS_ENABLED: 'biometrics_enabled',
     ONBOARDING_COMPLETE: 'onboarding_complete',
     IS_EMAIL_OTP_USER: 'is_email_otp_user',
+    AUTO_LOCK_ENABLED: 'auto_lock_enabled',
+    AUTO_LOCK_TIMEOUT_MINUTES: 'auto_lock_timeout_minutes',
 };
 
 export const setSecureValue = async (key: string, value: string) => {

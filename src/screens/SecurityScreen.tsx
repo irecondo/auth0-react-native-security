@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '../styles/AppStyles';
 
 interface SecurityScreenProps {
@@ -11,6 +11,10 @@ interface SecurityScreenProps {
     storedPin: string | null;
     openChangePinScreen: () => void;
     onDevicesPress: () => void;
+    autoLockEnabled: boolean;
+    autoLockTimeout: number;
+    onToggleAutoLock: () => void;
+    onSelectAutoLockTimeout: (minutes: number) => void;
 }
 
 export const SecurityScreen: React.FC<SecurityScreenProps> = ({
@@ -21,8 +25,17 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
     toggleBiometrics,
     storedPin,
     openChangePinScreen,
-    onDevicesPress
+    onDevicesPress,
+    autoLockEnabled,
+    autoLockTimeout,
+    onToggleAutoLock,
+    onSelectAutoLockTimeout
 }) => {
+    const [showAutoLockOptions, setShowAutoLockOptions] = useState<boolean>(false);
+
+    const timeOptions = [1, 5, 10];
+    const autoLockAvailable = !!storedPin;
+
     return (
         <ScrollView style={styles.scrollContainer}>
             <View style={styles.profileContainer}>
@@ -60,12 +73,16 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                                 </Text>
                             </View>
                             {biometricsAvailable && (
-                                <Switch
-                                    style={{ marginRight: 8 }}
-                                    trackColor={{ false: '#767577', true: '#666666' }}
-                                    onValueChange={toggleBiometrics}
-                                    value={biometricsEnabled}
-                                />
+                                <TouchableOpacity
+                                    style={[
+                                        styles.checkbox,
+                                        biometricsEnabled && styles.checkboxChecked
+                                    ]}
+                                    onPress={toggleBiometrics}
+                                    activeOpacity={0.7}
+                                >
+                                    {biometricsEnabled && <Text style={styles.checkmark}>✓</Text>}
+                                </TouchableOpacity>
                             )}
                         </View>
                     </TouchableOpacity>
@@ -86,6 +103,66 @@ export const SecurityScreen: React.FC<SecurityScreenProps> = ({
                             <Text style={styles.arrowIcon}>→</Text>
                         </View>
                     </TouchableOpacity>
+
+                    {/* Auto-lock toggle */}
+                    <TouchableOpacity
+                        style={[styles.securityOption, { borderRadius: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, marginBottom: 0 }]}
+                        onPress={() => setShowAutoLockOptions(prev => !prev)}
+                        disabled={!autoLockAvailable}
+                    >
+                        <View style={styles.securityOptionInfo}>
+                            <Text style={styles.securityOptionIcon}>⏱️</Text>
+                            <View style={styles.securityOptionText}>
+                                <Text style={styles.securityOptionTitle}>Auto-lock after inactivity</Text>
+                                <Text style={styles.securityOptionStatus}>
+                                    {autoLockAvailable
+                                        ? `${autoLockEnabled ? 'On' : 'Off'} • ${autoLockTimeout} min`
+                                        : 'Set up a PIN to enable'}
+                                </Text>
+                            </View>
+                            <TouchableOpacity
+                                style={[
+                                    styles.checkbox,
+                                    autoLockEnabled && styles.checkboxChecked,
+                                    !autoLockAvailable && { opacity: 0.3 }
+                                ]}
+                                onPress={() => {
+                                    if (!autoLockAvailable) return;
+                                    onToggleAutoLock();
+                                    if (!autoLockEnabled) {
+                                        setShowAutoLockOptions(true);
+                                    }
+                                }}
+                                disabled={!autoLockAvailable}
+                                activeOpacity={0.7}
+                            >
+                                {autoLockEnabled && <Text style={styles.checkmark}>✓</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
+                    {showAutoLockOptions && autoLockAvailable && (
+                        <View style={styles.autoLockOptionsRow}>
+                            {timeOptions.map(minutes => (
+                                <TouchableOpacity
+                                    key={minutes}
+                                    style={[
+                                        styles.autoLockOption,
+                                        autoLockTimeout === minutes && styles.autoLockOptionSelected
+                                    ]}
+                                    onPress={() => onSelectAutoLockTimeout(minutes)}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.autoLockOptionText,
+                                            autoLockTimeout === minutes && styles.autoLockOptionTextSelected
+                                        ]}
+                                    >
+                                        {minutes} min
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
                 </View>
 
                 <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Devices</Text>

@@ -422,6 +422,42 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666666',
     },
+    autoLockOptionsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 12,
+        backgroundColor: '#FFFFFF',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: '#E0E0E0',
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
+        marginTop: -6,
+        marginBottom: 12,
+    },
+    autoLockOption: {
+        flex: 1,
+        paddingVertical: 10,
+        marginHorizontal: 6,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        alignItems: 'center',
+        backgroundColor: '#F9F9F9',
+    },
+    autoLockOptionSelected: {
+        borderColor: '#0066CC',
+        backgroundColor: '#E8F2FF',
+    },
+    autoLockOptionText: {
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '500',
+    },
+    autoLockOptionTextSelected: {
+        color: '#0066CC',
+    },
     // Checkbox styles
     checkbox: {
         width: 26,
